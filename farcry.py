@@ -1,8 +1,5 @@
 from datetime import datetime
 from datetime import timedelta
-from re import search
-from sys import argv
-from json import dumps
 
 
 class Log(dict):
@@ -12,8 +9,8 @@ class Log(dict):
         self.cvar_dictionary = self.get_cvar_dictionary()
         self.start_time = self.parse_log_start_time()
         self.map_name, self.mode_name = self.parse_session_mode_and_map()
-        self.frags, self.delta = self.parse_frags()
-        self.session_start_time, self.session_end_time = self. \
+        self['frags'], self.delta = self.parse_frags()
+        self['session_start_time'], self['session_end_time'] = self. \
             parse_game_session_start_and_end_times()
         self.json_data = self.convert_data_to_json()
 
@@ -134,7 +131,7 @@ class Log(dict):
         for line in self.log_data:
             kill_infomation = line.split()
             try:
-                kill_infomation[0] = kill_infomation[0][1:-1]
+                kill_infomation[0] = kill_infoation[0][1:-1]
             except IndexError:
                 continue
             if not search('[0-9][0-9]:[0-9][0-9]',
@@ -167,6 +164,7 @@ class Log(dict):
             kill_infomation_list.append(tuple(kill_infomation))
             if delta_hour > 24:
                 delta_day += 1
+
         return kill_infomation_list, [delta_hour, delta_day]
 
     def parse_game_session_start_and_end_times(self):
@@ -182,36 +180,16 @@ class Log(dict):
         except ValueError:
             session_end_time = self.log_data[-1].split('')[0][-1:1]
         session_end_time = self.increase_time(session_end_time,
-                                              self.delta[0],
-                                              self.delta[1])
+                                              self['delta'][0],
+                                              self['delta'][1])
         return session_start_time, session_end_time
 
 
     def convert_data_to_json(self):
-        pass
+        for key in self.keys():
+            if type(self[key]) != str:
+                self[key] = str(self[key])
+        return dumps(self)
 
 
-class Reporter:
-    def __init__(self, log_data):
-        pass
 
-    def json(self):
-        pass
-
-
-class Stupid(dict):
-    def __init__(self):
-        self['asd'] = 'qwe'
-        self.zxc = self.get_stupid()
-
-    def get_stupid(self):
-        self['map'] = 123
-        self['mode'] = 456
-        return 1
-
-if __name__ == '__main__':
-    log = Log(argv[1])
-    # print(log.json_data)
-    stupid = Stupid()
-    # print(stupid['asd'])
-    print(dumps(stupid))
