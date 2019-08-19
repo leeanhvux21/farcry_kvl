@@ -1,5 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
+from re import search
+from json import dumps
 
 
 class Log(dict):
@@ -63,7 +65,7 @@ class Log(dict):
     def parse_session_mode_and_map(self):
         """
         get map and mode name
-        :param log_data: string
+        :param: self
         :return: tuple
         """
         for line in self.log_data:
@@ -72,8 +74,8 @@ class Log(dict):
                                    line).groups()
                 return map, mode
 
-    def check_if_hour_increase(self,
-                               current_time,
+    @staticmethod
+    def check_if_hour_increase(current_time,
                                flag):
         """
         get current_time and flag as 2 string reference for current line's time
@@ -131,7 +133,7 @@ class Log(dict):
         for line in self.log_data:
             kill_infomation = line.split()
             try:
-                kill_infomation[0] = kill_infoation[0][1:-1]
+                kill_infomation[0] = kill_infomation[0][1:-1]
             except IndexError:
                 continue
             if not search('[0-9][0-9]:[0-9][0-9]',
@@ -168,6 +170,10 @@ class Log(dict):
         return kill_infomation_list, [delta_hour, delta_day]
 
     def parse_game_session_start_and_end_times(self):
+        """
+        find the line has the start session mark and get it
+        :return:
+        """
         for line in self.log_data:
             if search('<[0-9][0-9]:[0-9][0-9]>  Level ' +
                       self.map_name + ' loaded in .* seconds', line):
@@ -180,8 +186,8 @@ class Log(dict):
         except ValueError:
             session_end_time = self.log_data[-1].split('')[0][-1:1]
         session_end_time = self.increase_time(session_end_time,
-                                              self['delta'][0],
-                                              self['delta'][1])
+                                              self.delta[0],
+                                              self.delta[1])
         return session_start_time, session_end_time
 
 
@@ -192,4 +198,5 @@ class Log(dict):
         return dumps(self)
 
 
-
+if __name__ == '__main__':
+    log = Log('log.txt')
