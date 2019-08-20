@@ -18,13 +18,18 @@ def parse_frag(log_info, pattern_dict):
     for type, pattern in pattern_dict.items():
         re_result = search(pattern, log_info)
         if re_result:
-            return eval('handel_' + pattern_name + '(' + re_result + ',')')
+            return eval('handel_' + pattern_name + '(' + re_result + ',')
         else:
             return None
 
 
-def handle_log(log_data):
+def handle_frag(info_group):
+    pass
 
+
+def handle_start_time(info_group):
+    pass
 
 if __name__ == '__main__':
+    pass
 
