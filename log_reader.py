@@ -2,6 +2,7 @@ from sys import stderr
 from os import path
 from re import search
 from info_handler import *
+from datetime import datetime, timedelta
 
 
 def read_file(file_path_name):
@@ -10,10 +11,10 @@ def read_file(file_path_name):
     elif path.isfile(file_path_name):
         return [line for line in open(file_path_name).read().split('\n') if line]
     elif path.isdir(file_path_name):
-        raise OSError(file_path_name, ' is a directory')
+        raise OSError(file_path_name, ' is a directory')    
 
 
-def parse_frag(log_info, pattern_dict):
+def parse_special_log_info(log_index, log_info, pattern_dict):
     """
     :param log_info: (str) a line or an element in the log file
     :param pattern_dict: (dict) dictionary with key is the type of log_info and
@@ -27,21 +28,20 @@ def parse_frag(log_info, pattern_dict):
             stderr.write(Error)
         if regex_result:
             try:
-                return eval('handel_' + info_type + '(' + regex_result + ',')
+                return eval('handel_' + info_type + '(log_index, regex_result.groups())')
             except (NameError, TypeError) as Error:
                 stderr.write(Error)
-                
-
-def check_if_hour_increase(time_1, time_2):
-    if (int(time_1[0]) * 60 + int(time_1[1])) > (int(time_2[0]) * 60 + int(time_2[1])):
-        return True
-    return False
 
 
-def handle_frag(regex_result):
-    info_list = regex_result.groups()
+def convert_to_datetime(log_start_time, delta_hour, minute, second):
+    
+    pass
+
+
+def handle_frag(log_index, info_list):
     if len(info_list) == 5:
         frag_info_dict = {
+            'index': log_index,
             'suicide':False,
             'time':{
                 'minute':info_list[0],
@@ -52,6 +52,7 @@ def handle_frag(regex_result):
         }
     elif len(info_list) == 3:
         frag_info_dict = {
+            'index':log_index,
             'suicide':True,
             'time':{
                 'minute':info_list[0],
@@ -63,21 +64,21 @@ def handle_frag(regex_result):
     return frag_info_dict
 
 
-def handle_start_time(regex_result):
+def handle_session_start_time(index, info_list, delta_hour):
     pass
+    
 
 
-def handle_end_time(regex_result):
+def handle_session_end_time(index, info_list, delta_hour):
     pass
 
 
 
 if __name__ == '__main__':
     pattern_dict = {
-        'frag' : '(.*):(.*)> <Lua> ([^ ]*) killed ([^ ]*) \
-            with ([^ \n]*)|<(.*):(.*)> <Lua> ([^ ]*) killed itself',
-        'start_time':'',
-        'end_time':'',
-        'normal_info_line':'<([0-5][0-9]):([0-5][0-9])>',
-        'player_name':"OS User name: '(.*)'"
+        'frag' : '<([0-5][0-9]):([0-5][0-9])> <Lua> ([^ ]*) killed ([^ ]*) \
+            with ([^ \n]*)|<([0-5][0-9]):([0-5][0-9])> <Lua> ([^ ]*) killed itself',
+        'start_time':'<([0-5][0-9]):([0-5][0-9])>  Level [^ ]* loaded in [^ ] seconds',
+        'end_time':'<([0-5][0-9]):([0-5][0-9])> == Statistics * ==',
+        'log_start_time':'Log Started at [^ ]*, ([^ ]*) ([0-2][0-9]), ([0-9]{4}) ([0-5][0-9]):[0-5][0-9]:[0-5][0-9]'
     }

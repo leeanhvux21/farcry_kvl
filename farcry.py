@@ -77,7 +77,6 @@ class Log(dict):
     @staticmethod
     def check_if_hour_increase(current_time,
                                flag):
-# from sys import argv
         """
         get current_time and flag as 2 string reference for current line's time
         and the last line's time, compare them if current time is smaller than
